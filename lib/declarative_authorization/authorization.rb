@@ -277,6 +277,18 @@ module Authorization
     def roles_with_hierarchy_for(user)
       flatten_roles(roles_for(user))
     end
+    
+    def self.force_reload
+      @@force_reload = true
+    end
+    
+    def self.force_reload?
+      if defined? @@force_reload 
+        temp = @@force_reload
+        @@force_reload = false
+      end
+      temp
+    end
 
     def self.development_reload?
       if Rails.env.development?
@@ -293,7 +305,7 @@ module Authorization
     # yet.  If +dsl_file+ is given, it is passed on to Engine.new and 
     # a new instance is always created.
     def self.instance (dsl_file = nil)
-      if dsl_file or development_reload?
+      if dsl_file or development_reload? or force_reload?
         @@instance = new(dsl_file)
       else
         @@instance ||= new
